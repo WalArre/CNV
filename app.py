@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 import os
 
 # CONFIGURACIÓN DE PÁGINA
-st.set_page_config(page_title="SISTEMA TÁCTICO - ACCESO RESTRINGIDO", layout="wide")
+st.set_page_config(page_title="ACCESO RESTRINGIDO", layout="wide")
 
 # --- SISTEMA DE SEGURIDAD ---
 if 'autenticado' not in st.session_state:
