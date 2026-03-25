@@ -1,0 +1,18 @@
+ID_Nodo,Tipo,Dato,Rol_Identificado,Estado
+Urruchua,Victima,20-25688376-8,Denunciante,Activo
++54 9 11 7153-3107,Telefono,WhatsApp,Videollamada inicial,Activo
++54 9 11 5463-0718,Telefono,WhatsApp,Envio certificados falsos,Activo
++54 9 11 2674-4813,Telefono,WhatsApp,Estafador administrador,Activo
++54 9 11 5762-2073,Telefono,WhatsApp,Ken estafa Haman,Activo
++54 9 11 6461-5735,Telefono,WhatsApp,Mariana Duarte,Activo
++54 9 11 5348-6296,Telefono,WhatsApp,Estafadora 2,Activo
+Adrex S.A.,Empresa,CUIT S/D,Mula recaudadora,Activo
+Bringarez S.A.,Empresa,CUIT S/D,Mula extorsion,Activo
+Finanzas Int. SRL,Empresa,CUIT S/D,Mula extorsion,Activo
+Milagros Malfetti,Persona,27-46278081-3,Titular cuenta Finanzas SRL,Activo
+Nicole G. Zamorano,Persona,CVU 0000003100002777743366,Mula extorsion,Activo
+Wenya Chen,Persona,CVU 27941186225,Anzuelo financiero,Activo
+Ana Ovejero,Persona,CVU 23436496834,Anzuelo financiero,Activo
+alliance-bernstein.top,Infraestructura,Dominio,Plataforma principal,CLIENT HOLD
+chat.btmsgxl.us,Infraestructura,IP/Host,Servidor Chat,Activo
+Puente Hnos SA,Causa Conexa,CCC 62120/202,Victima paralela,Investigacion

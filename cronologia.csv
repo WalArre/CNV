@@ -1,0 +1,20 @@
+Fecha,Hora,Fase,Evento,Detalle_Operativo,Impacto_Economico
+17/09/2025,S/D,Fase 1: Preparacion,Emision de certificados,Creacion del certificado apocrifo de la CNV/FINRA.,No
+13/12/2025,S/D,Fase 1: Preparacion,Captacion de la victima,Ingreso al grupo de WhatsApp cerrado JI-06.,No
+15/12/2025,S/D,Fase 1: Preparacion,Intento de creacion de cuenta,Fallo en el primer intento de registro en la plataforma.,No
+16/12/2025,20:38,Fase 1: Preparacion,Intento de videollamada,Llamada no atendida (11-7153-3107).,No
+22/12/2025,S/D,Fase 2: Engaño,1er Deposito y DNI,Victima entrega copia de su DNI. Transferencia a Adrex SA.,Si
+23/12/2025,S/D,Fase 2: Engaño,2do Deposito,Transferencia a Adrex SA.,Si
+26/12/2025,12:24,Fase 2: Engaño,Maniobra Anzuelo N1,Victima recibe fondeo de Ana Ovejero / Claro-Pay.,Si
+26/12/2025,S/D,Fase 2: Engaño,3er Deposito,Transferencia a Adrex SA.,Si
+29/12/2025,S/D,Fase 2: Engaño,4to Deposito Masivo,Transferencia a Adrex SA.,Si
+30/12/2025,S/D,Fase 2: Engaño,5to Deposito,Transferencia a Adrex SA.,Si
+30/12/2025,15:36,Fase 2: Engaño,Extraccion Exitosa,Victima logra retirar fondos. Origen Wenya Chen.,Si
+30/12/2025,S/D,Fase 3: Extorsion,Congelamiento de fondos,SPO ficticio por $35M para bloquear retiros.,No
+19/01/2026,S/D,Fase 3: Extorsion,1er Pago Extorsivo,Multa SPO enviada a Bringarez SA.,Si
+20/01/2026,11:21,Fase 3: Extorsion,Intento de Retiro App,Rechazado en plataforma web.,No
+20/01/2026,17:35,Fase 3: Extorsion,2do Pago Extorsivo,Ganancias 30% a Finanzas Int. SRL.,Si
+22/01/2026,11:37,Fase 3: Extorsion,3er Pago Extorsivo,Impuesto ARCA a Nicole G. Zamorano.,Si
+22/01/2026,11:10,Fase 4: Judicial,Inicio de IPP 415/26,Denuncia en la fiscalia de Zarate.,No
+27/01/2026,S/D,Fase 4: Judicial,Confirmacion Causa Conexa,Puente Hnos confirma misma maniobra.,No
+26/02/2026,S/D,Fase 4: Judicial,Repatriacion Parcial,Mercado Pago reintegra fondos.,Si
