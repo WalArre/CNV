@@ -1,135 +1,156 @@
 import streamlit as st
 import pandas as pd
 
-# CONFIGURACIÓN DE PÁGINA - Responsiva por defecto
-st.set_page_config(page_title="MONITOR TÁCTICO IPP 415/26", layout="wide")
+# CONFIGURACIÓN DE PÁGINA
+st.set_page_config(page_title="SISTEMA TÁCTICO - ACCESO RESTRINGIDO", layout="wide")
 
-# --- CSS HÍBRIDO (PC/CELULAR) ---
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-    
-    /* Configuración Base */
-    .stApp { background-color: #09090b; color: #f8fafc; font-family: 'JetBrains Mono', monospace; }
-    
-    /* Tarjetas Tácticas Responsivas */
-    .tactic-card {
-        background: #18181b;
-        border: 1px solid #27272a;
-        border-left: 4px solid #00f3ff;
-        padding: 1rem;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        min-height: 100px;
-    }
-    
-    .metric-value { font-size: clamp(1.2rem, 5vw, 1.8rem); font-weight: bold; color: #39ff14; }
-    .metric-label { font-size: 0.75rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; }
+# --- SISTEMA DE SEGURIDAD ---
+if 'autenticado' not in st.session_state:
+    st.session_state.autenticado = False
 
-    /* Línea de Tiempo Adaptada */
-    .tl-container { border-left: 2px solid #27272a; margin-left: 10px; padding-left: 15px; }
-    .tl-item { margin-bottom: 25px; position: relative; }
-    .tl-dot { 
-        position: absolute; left: -22px; top: 6px; 
-        width: 12px; height: 12px; border-radius: 50%; 
-    }
-    .dot-cyan { background: #00f3ff; box-shadow: 0 0 10px #00f3ff; }
-    .dot-purple { background: #b026ff; box-shadow: 0 0 10px #b026ff; }
-    .dot-red { background: #ff003c; box-shadow: 0 0 10px #ff003c; }
-    .dot-green { background: #39ff14; box-shadow: 0 0 10px #39ff14; }
-    
-    .tl-date { color: #00f3ff; font-weight: bold; font-size: 0.8rem; }
-    .tl-event { color: #f8fafc; font-weight: bold; margin: 2px 0; font-size: 0.95rem; }
-    .tl-desc { color: #a1a1aa; font-size: 0.85rem; line-height: 1.3; }
-
-    /* Ajuste de tablas para móvil */
-    [data-testid="stDataFrame"] { width: 100%; border: 1px solid #27272a; border-radius: 4px; }
-</style>
-""", unsafe_allow_html=True)
-
-# --- CARGA DE DATOS ---
-@st.cache_data
-def load_data():
-    df_tx = pd.read_csv("transacciones.csv")
-    df_crono = pd.read_csv("cronologia.csv")
-    return df_tx, df_crono
-
-df_tx, df_crono = load_data()
-
-# --- HEADER TÁCTICO ---
-st.markdown("""
-    <div style='border-bottom: 2px solid #00f3ff; padding-bottom:10px; margin-bottom:20px; text-align: left;'>
-        <h2 style='margin:0; color:#00f3ff; font-size: clamp(1.2rem, 6vw, 2rem);'>🛰️ MONITOR IPP 415/26</h2>
-        <small style='color:#a1a1aa;'>UNIDAD DE INTELIGENCIA - VILLA SANTA RITA</small>
-    </div>
-""", unsafe_allow_html=True)
-
-# --- SECCIÓN DE MÉTRICAS (KPIs) ---
-# En móvil, Streamlit apila estas columnas automáticamente
-c1, c2, c3, c4 = st.columns([1,1,1,1])
-with c1:
-    st.markdown("<div class='tactic-card'><div class='metric-label'>Perjuicio Neto</div><div class='metric-value'>$ 23.4M</div></div>", unsafe_allow_html=True)
-with c2:
-    st.markdown("<div class='tactic-card' style='border-left-color:#ffb000'><div class='metric-label'>Estado Dominio</div><div class='metric-value' style='color:#ffb000'>HOLD</div></div>", unsafe_allow_html=True)
-with c3:
-    st.markdown("<div class='tactic-card' style='border-left-color:#b026ff'><div class='metric-label'>Causas</div><div class='metric-value' style='color:#b026ff'>PUENTE</div></div>", unsafe_allow_html=True)
-with c4:
-    st.markdown("<div class='tactic-card' style='border-left-color:#39ff14'><div class='metric-label'>Recupero</div><div class='metric-value' style='color:#39ff14'>$ 556K</div></div>", unsafe_allow_html=True)
-
-# --- CUERPO PRINCIPAL (TABS PARA MEJOR NAVEGACIÓN EN MÓVIL) ---
-# Usar pestañas permite que en el celular no tengas que hacer un scroll infinito
-tab1, tab2, tab3 = st.tabs(["📊 FLUJO BANCARIO", "⏳ TIMELINE", "📂 REPORTES"])
-
-with tab1:
-    st.subheader("Análisis de Transacciones")
-    busqueda = st.text_input("🔍 Buscar CUIT, Alias o Entidad...", placeholder="Ej: Adrex")
-    
-    if busqueda:
-        mask = df_tx.apply(lambda x: x.astype(str).str.contains(busqueda, case=False)).any(axis=1)
-        df_filtrado = df_tx[mask]
+def verificar_password():
+    if st.session_state["password_input"] == "Dicco1272":
+        st.session_state.autenticado = True
     else:
-        df_filtrado = df_tx
-        
-    st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
+        st.error("❌ Credencial de acceso incorrecta. Intente nuevamente.")
 
-with tab2:
-    st.subheader("Línea de Tiempo Operativa")
-    st.markdown("<div class='tl-container'>", unsafe_allow_html=True)
-    for _, row in df_crono.iterrows():
-        # Lógica de colores según la fase del HTML original
-        color_class = "dot-cyan" # Fase 1/2
-        if "Extorsion" in row['Fase']: color_class = "dot-red"
-        if "Judicial" in row['Fase']: color_class = "dot-purple"
-        if "Recupero" in row['Evento'] or "Repatriación" in row['Evento']: color_class = "dot-green"
-        
-        st.markdown(f"""
-            <div class='tl-item'>
-                <div class='tl-dot {color_class}'></div>
-                <div class='tl-date'>{row['Fecha']}</div>
-                <div class='tl-event'>{row['Evento']}</div>
-                <div class='tl-desc'>{row['Detalle_Operativo']}</div>
+if not st.session_state.autenticado:
+    # Pantalla de Login
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Escudo_de_la_Polic%C3%ADa_Federal_Argentina.svg/1200px-Escudo_de_la_Polic%C3%ADa_Federal_Argentina.svg.png", width=120)
+        st.title("🔐 Acceso Operativo")
+        st.text_input("Ingrese Contraseña de Brigada:", type="password", key="password_input", on_change=verificar_password)
+        st.info("Investigación Criminal - IPP 415/26 - Sumario 55/26")
+    st.stop()
+
+# --- CARGA DE DATOS PARA INYECTAR EN EL HTML ---
+df_tx = pd.read_csv("transacciones.csv")
+df_crono = pd.read_csv("cronologia.csv")
+
+# Cálculo de variables dinámicas
+total_perjuicio = df_tx[df_tx['Tipo'].isin(['Inversion', 'Extorsion'])]['Monto'].sum() - df_tx[df_tx['Tipo'] == 'Recupero']['Monto'].sum()
+
+# --- CONSTRUCCIÓN DEL HTML TÁCTICO ---
+# Aquí inyectamos el CSS de tu dashboard original
+html_template = f"""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    :root {{
+        --bg-dark: #09090b;
+        --surface-dark: #18181b;
+        --neon-cyan: #00f3ff;
+        --neon-purple: #b026ff;
+        --neon-green: #39ff14;
+        --neon-red: #ff003c;
+        --text-main: #f8fafc;
+    }}
+
+    .main-container {{
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        padding: 20px;
+        font-family: 'Inter', sans-serif;
+    }}
+
+    .header {{
+        border-bottom: 2px solid var(--neon-cyan);
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }}
+
+    .grid-kpi {{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }}
+
+    .kpi-card {{
+        background: var(--surface-dark);
+        border: 1px solid #27272a;
+        border-left: 4px solid var(--neon-cyan);
+        padding: 20px;
+        border-radius: 4px;
+    }}
+
+    .kpi-value {{
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.8rem;
+        color: var(--neon-green);
+        font-weight: bold;
+    }}
+
+    /* Estilo Timeline Original */
+    .timeline {{
+        position: relative;
+        padding-left: 30px;
+        border-left: 2px solid #27272a;
+    }}
+
+    .timeline-item {{ margin-bottom: 30px; position: relative; }}
+    .dot {{
+        position: absolute; left: -37px; top: 5px;
+        width: 12px; height: 12px; border-radius: 50%;
+        background: var(--neon-cyan);
+        box-shadow: 0 0 10px var(--neon-cyan);
+    }}
+
+    .dot-red {{ background: var(--neon-red); box-shadow: 0 0 10px var(--neon-red); }}
+    .dot-purple {{ background: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }}
+</style>
+
+<div class="main-container">
+    <div class="header">
+        <h1 style="color: var(--neon-cyan); margin:0;">🛰️ MONITOR TÁCTICO V6</h1>
+        <p style="color: #a1a1aa; margin:5px 0;">INVESTIGACIÓN: IPP 415/26 - URRUCHÚA</p>
+    </div>
+
+    <div class="grid-kpi">
+        <div class="kpi-card">
+            <div style="font-size: 0.8rem; color: #a1a1aa;">PERJUICIO NETO</div>
+            <div class="kpi-value">${total_perjuicio:,.2f}</div>
+        </div>
+        <div class="kpi-card" style="border-left-color: var(--neon-purple)">
+            <div style="font-size: 0.8rem; color: #a1a1aa;">CAUSAS CONEXAS</div>
+            <div class="kpi-value" style="color: var(--neon-purple)">PUENTE HNOS</div>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+        <div style="flex: 2; min-width: 300px;">
+            <h3 style="border-bottom: 1px solid #27272a; padding-bottom:10px;">📊 Últimos Movimientos</h3>
+            <table style="width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono';">
+                <tr style="text-align: left; color: #a1a1aa; font-size: 0.8rem;">
+                    <th style="padding: 10px; border-bottom: 1px solid #27272a;">FECHA</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #27272a;">MONTO</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #27272a;">DESTINO</th>
+                </tr>
+                {"".join([f"<tr style='border-bottom: 1px solid #1f1f23'><td style='padding:10px'>{r['Fecha']}</td><td style='padding:10px; color:var(--neon-green)'>${r['Monto']:,.2f}</td><td style='padding:10px'>{r['Entidad_Receptora']}</td></tr>" for _, r in df_tx.head(10).iterrows()])}
+            </table>
+        </div>
+
+        <div style="flex: 1; min-width: 300px;">
+            <h3 style="border-bottom: 1px solid #27272a; padding-bottom:10px;">⏳ Timeline Operativa</h3>
+            <div class="timeline">
+                {"".join([f"<div class='timeline-item'><div class='dot'></div><div style='color:var(--neon-cyan); font-weight:bold; font-size:0.8rem;'>{r['Fecha']}</div><div style='font-weight:bold;'>{r['Evento']}</div><div style='color:#a1a1aa; font-size:0.85rem;'>{r['Detalle_Operativo']}</div></div>" for _, r in df_crono.iterrows()])}
             </div>
-        """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        </div>
+    </div>
+</div>
+"""
 
-with tab3:
-    st.subheader("Exportación de Datos")
-    st.info("Desde aquí podés descargar la matriz completa para pericias externas.")
-    
-    col_btn1, col_btn2 = st.columns(2)
-    with col_btn1:
-        st.download_button(
-            label="📄 Descargar Excel (.csv)",
-            data=df_tx.to_csv(index=False),
-            file_name="Matriz_IPP415_26.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-    with col_btn2:
-        # Botón placeholder para el PDF
-        if st.button("📑 Generar Reporte PDF", use_container_width=True):
-            st.warning("Función de PDF en preparación para descarga móvil.")
+# Renderizado final del HTML
+st.markdown(html_template, unsafe_allow_html=True)
 
-# --- FOOTER ---
+# Botones de exportación al final (fuera del HTML inyectado para que funcionen bien)
 st.markdown("---")
-st.caption("Acceso Restringido - Sistema de Monitoreo PFA - Actualizado vía GitHub")
+c1, c2 = st.columns(2)
+with c1:
+    st.download_button("📥 Descargar CSV", df_tx.to_csv(index=False), "investigacion_ipp415.csv", use_container_width=True)
+with c2:
+    if st.button("🚪 Cerrar Sesión", use_container_width=True):
+        st.session_state.autenticado = False
+        st.rerun()
