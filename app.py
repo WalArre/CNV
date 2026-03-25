@@ -1,107 +1,113 @@
 import streamlit as st
 import pandas as pd
-import networkx as nx
-from pyvis.network import Network
-import streamlit.components.v1 as components
-import plotly.express as px
-import io
-from fpdf import FPDF
 
-# --- CONFIGURACIÓN DE PÁGINA Y ESTÉTICA TÁCTICA ---
-st.set_page_config(page_title="Monitor Táctico - IPP 415/26", layout="wide", initial_sidebar_state="expanded")
+# CONFIGURACIÓN DE PÁGINA
+st.set_page_config(page_title="MONITOR TÁCTICO IPP 415/26", layout="wide")
 
-# Inyección de CSS para forzar el Dark Mode y estilo Neón (Monitor Táctico)
+# --- ESTILOS NEÓN ORIGINALES (CSS INYECTADO) ---
 st.markdown("""
-    <style>
-    .stApp { background-color: #09090b; color: #f8fafc; }
-    .css-1d391kg { background-color: #18181b; } /* Sidebar */
-    h1, h2, h3 { color: #00f3ff; font-family: 'JetBrains Mono', monospace; }
-    .stMetric label { color: #a1a1aa !important; }
-    .stMetric [data-testid="stMetricValue"] { color: #39ff14 !important; }
-    </style>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+    
+    .stApp { background-color: #09090b; color: #f8fafc; font-family: 'JetBrains Mono', monospace; }
+    
+    /* Contenedores Estilo Tarjeta */
+    .tactic-card {
+        background: #18181b;
+        border: 1px solid #27272a;
+        border-left: 4px solid #00f3ff;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    
+    .metric-value { font-size: 24px; font-weight: bold; color: #39ff14; }
+    .metric-label { font-size: 12px; color: #a1a1aa; text-transform: uppercase; }
+
+    /* Estilo Timeline (Copiado de tu original) */
+    .tl-container { border-left: 2px solid #27272a; margin-left: 20px; padding-left: 20px; position: relative; }
+    .tl-item { margin-bottom: 20px; position: relative; }
+    .tl-dot { 
+        position: absolute; left: -27px; top: 5px; 
+        width: 12px; height: 12px; border-radius: 50%; 
+    }
+    .dot-cyan { background: #00f3ff; box-shadow: 0 0 10px #00f3ff; }
+    .dot-purple { background: #b026ff; box-shadow: 0 0 10px #b026ff; }
+    .dot-red { background: #ff003c; box-shadow: 0 0 10px #ff003c; }
+    .tl-date { color: #00f3ff; font-weight: bold; font-size: 0.85em; }
+    .tl-event { color: #f8fafc; font-weight: bold; margin: 5px 0; }
+    .tl-desc { color: #a1a1aa; font-size: 0.9em; }
+</style>
 """, unsafe_allow_html=True)
 
 # --- CARGA DE DATOS ---
-@st.cache_data
-def load_data():
-    df_tx = pd.read_csv("transacciones.csv")
-    df_nodos = pd.read_csv("nodos_objetivos.csv")
-    df_crono = pd.read_csv("cronologia.csv")
-    return df_tx, df_nodos, df_crono
+df_tx = pd.read_csv("transacciones.csv")
+df_crono = pd.read_csv("cronologia.csv")
 
-df_tx, df_nodos, df_crono = load_data()
+# --- HEADER TÁCTICO ---
+st.markdown("""
+    <div style='border-bottom: 2px solid #00f3ff; padding-bottom:10px; margin-bottom:20px'>
+        <h2 style='margin:0; color:#00f3ff;'>🛰️ SISTEMA DE MONITOREO - IPP 415/26</h2>
+        <small style='color:#a1a1aa;'>UNIDAD DE INTELIGENCIA OPERATIVA - BASE VILLA SANTA RITA</small>
+    </div>
+""", unsafe_allow_html=True)
 
-# --- SIDEBAR: FILTROS TÁCTICOS ---
-st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Escudo_de_la_Polic%C3%ADa_Federal_Argentina.svg/1200px-Escudo_de_la_Polic%C3%ADa_Federal_Argentina.svg.png", width=100)
-st.sidebar.title("Comandos de Filtrado")
-st.sidebar.markdown("---")
+# --- FILAS SUPERIORES: KPIs ---
+c1, c2, c3, c4 = st.columns(4)
+with c1:
+    st.markdown(f"<div class='tactic-card'><div class='metric-label'>Perjuicio Neto</div><div class='metric-value'>$ 23.444.647</div></div>", unsafe_allow_html=True)
+with c2:
+    st.markdown(f"<div class='tactic-card' style='border-left-color:#ffb000'><div class='metric-label'>Estado Dominio</div><div class='metric-value' style='color:#ffb000'>CLIENT HOLD</div></div>", unsafe_allow_html=True)
+with c3:
+    st.markdown(f"<div class='tactic-card' style='border-left-color:#b026ff'><div class='metric-label'>Causas Conexas</div><div class='metric-value' style='color:#b026ff'>PUENTE HNOS</div></div>", unsafe_allow_html=True)
+with c4:
+    st.markdown(f"<div class='tactic-card' style='border-left-color:#39ff14'><div class='metric-label'>Recupero Parcial</div><div class='metric-value' style='color:#39ff14'>$ 556.869</div></div>", unsafe_allow_html=True)
 
-# Filtro por tipo de transacción
-tipos_tx = st.sidebar.multiselect("Filtrar Tipo de Operación", options=df_tx["Tipo"].unique(), default=df_tx["Tipo"].unique())
-df_tx_filtrado = df_tx[df_tx["Tipo"].isin(tipos_tx)]
+# --- CUERPO PRINCIPAL ---
+col_main, col_side = st.columns([2, 1])
 
-# Buscador Global
-st.sidebar.markdown("### Buscador Global (Nodos)")
-search_query = st.sidebar.text_input("Ingresar CUIT, Teléfono, Alias o Nombre:")
-
-# --- PANEL CENTRAL ---
-st.title("🖥️ Monitor Táctico de Inteligencia - Sumario 55/26")
-st.markdown("Visualización en tiempo real de flujos financieros y mapeo de actores involucrados en la estructura investigada.")
-
-# --- KPIs (Métricas Financieras) ---
-col1, col2, col3, col4 = st.columns(4)
-total_inversion = df_tx_filtrado[df_tx_filtrado["Tipo"] == "Inversion"]["Monto"].sum()
-total_extorsion = df_tx_filtrado[df_tx_filtrado["Tipo"] == "Extorsion"]["Monto"].sum()
-total_recupero = df_tx_filtrado[df_tx_filtrado["Tipo"] == "Recupero"]["Monto"].sum()
-perjuicio_neto = (total_inversion + total_extorsion) - total_recupero
-
-col1.metric("Capital Invertido (Real)", f"${total_inversion:,.2f}")
-col2.metric("Pagos Extorsivos", f"${total_extorsion:,.2f}")
-col3.metric("Fondos Recuperados", f"${total_recupero:,.2f}")
-col4.metric("Perjuicio Neto", f"${perjuicio_neto:,.2f}")
-
-st.markdown("---")
-
-# --- GRAFO DE CONEXIONES (Link Analysis) ---
-st.subheader("🕸️ Análisis de Vínculos Financieros")
-
-# Construcción del grafo con NetworkX
-G = nx.DiGraph()
-for _, row in df_tx_filtrado.iterrows():
-    origen = str(row["Origen"])
-    destino = str(row["Entidad_Receptora"])
-    monto = f"${row['Monto']:,.2f}"
+with col_main:
+    st.subheader("📊 Análisis de Nodos y Transacciones")
+    # Filtro rápido
+    busqueda = st.text_input("🔍 Buscar CUIT / Alias / CBU...", "")
     
-    G.add_node(origen, color="#00f3ff", title="Origen")
-    G.add_node(destino, color="#ff003c", title="Destino")
-    G.add_edge(origen, destino, label=monto, title=f"{row['Tipo']} - {monto}")
+    if busqueda:
+        resultado = df_tx[df_tx.astype(str).apply(lambda x: x.str.contains(busqueda, case=False)).any(axis=1)]
+        st.dataframe(resultado, use_container_width=True)
+    else:
+        st.dataframe(df_tx, use_container_width=True)
 
-# Renderizar PyVis
-net = Network(height="500px", width="100%", bgcolor="#09090b", font_color="white", directed=True)
-net.from_nx(G)
-net.repulsion(node_distance=150, central_gravity=0.2, spring_length=200, spring_strength=0.05, damping=0.09)
+    st.markdown("### 🗺️ Mapa de Billeteras Mulas")
+    # Aquí podrías poner el mapa de red anterior o una tabla resumen
+    st.info("Visualización optimizada para 55 pulgadas. Use Ctrl+R para refrescar datos desde GitHub.")
 
-# Guardar y mostrar el HTML del grafo
-try:
-    net.save_graph("grafo.html")
-    with open("grafo.html", "r", encoding="utf-8") as f:
-        html_string = f.read()
-    components.html(html_string, height=510)
-except Exception as e:
-    st.error(f"Error al generar el grafo: {e}")
+with col_side:
+    st.subheader("⏳ Línea de Tiempo Operativa")
+    
+    # Generador de Timeline con el estilo de tu HTML
+    st.markdown("<div class='tl-container'>", unsafe_allow_html=True)
+    for _, row in df_crono.iterrows():
+        # Lógica de colores según fase
+        color_class = "dot-cyan"
+        if "Extorsion" in row['Fase']: color_class = "dot-red"
+        if "Judicial" in row['Fase']: color_class = "dot-purple"
+        
+        st.markdown(f"""
+            <div class='tl-item'>
+                <div class='tl-dot {color_class}'></div>
+                <div class='tl-date'>{row['Fecha']}</div>
+                <div class='tl-event'>{row['Evento']}</div>
+                <div class='tl-desc'>{row['Detalle_Operativo']}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("---")
-
-# --- TABLAS INTERACTIVAS Y BUSCADOR ---
-col_A, col_B = st.columns([2, 1])
-
-with col_A:
-    st.subheader("Flujo de Transacciones")
-    st.dataframe(df_tx_filtrado, use_container_width=True)
-
-with col_B:
-    st.subheader("Base de Nodos")
-    if search_query:
+# --- BOTONES DE ACCIÓN (Sidebar para no ensuciar el monitor) ---
+with st.sidebar:
+    st.title("OPCIONES")
+    if st.button("📥 Generar Reporte PDF"):
+        st.write("Generando dossier...")
+    st.download_button("📂 Descargar Excel", df_tx.to_csv(), "investigacion_415.csv")
         df_nodos_filtrado = df_nodos[df_nodos.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
         st.dataframe(df_nodos_filtrado, use_container_width=True)
         if not df_nodos_filtrado.empty:
