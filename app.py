@@ -1,96 +1,106 @@
 import streamlit as st
 import pandas as pd
 
-# CONFIGURACIÓN DE PÁGINA
+# CONFIGURACIÓN DE PÁGINA - Responsiva por defecto
 st.set_page_config(page_title="MONITOR TÁCTICO IPP 415/26", layout="wide")
 
-# --- ESTILOS NEÓN ORIGINALES (CSS INYECTADO) ---
+# --- CSS HÍBRIDO (PC/CELULAR) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
     
+    /* Configuración Base */
     .stApp { background-color: #09090b; color: #f8fafc; font-family: 'JetBrains Mono', monospace; }
     
-    /* Contenedores Estilo Tarjeta */
+    /* Tarjetas Tácticas Responsivas */
     .tactic-card {
         background: #18181b;
         border: 1px solid #27272a;
         border-left: 4px solid #00f3ff;
-        padding: 15px;
+        padding: 1rem;
         border-radius: 4px;
         margin-bottom: 10px;
+        min-height: 100px;
     }
     
-    .metric-value { font-size: 24px; font-weight: bold; color: #39ff14; }
-    .metric-label { font-size: 12px; color: #a1a1aa; text-transform: uppercase; }
+    .metric-value { font-size: clamp(1.2rem, 5vw, 1.8rem); font-weight: bold; color: #39ff14; }
+    .metric-label { font-size: 0.75rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; }
 
-    /* Estilo Timeline (Copiado de tu original) */
-    .tl-container { border-left: 2px solid #27272a; margin-left: 20px; padding-left: 20px; position: relative; }
-    .tl-item { margin-bottom: 20px; position: relative; }
+    /* Línea de Tiempo Adaptada */
+    .tl-container { border-left: 2px solid #27272a; margin-left: 10px; padding-left: 15px; }
+    .tl-item { margin-bottom: 25px; position: relative; }
     .tl-dot { 
-        position: absolute; left: -27px; top: 5px; 
+        position: absolute; left: -22px; top: 6px; 
         width: 12px; height: 12px; border-radius: 50%; 
     }
     .dot-cyan { background: #00f3ff; box-shadow: 0 0 10px #00f3ff; }
     .dot-purple { background: #b026ff; box-shadow: 0 0 10px #b026ff; }
     .dot-red { background: #ff003c; box-shadow: 0 0 10px #ff003c; }
-    .tl-date { color: #00f3ff; font-weight: bold; font-size: 0.85em; }
-    .tl-event { color: #f8fafc; font-weight: bold; margin: 5px 0; }
-    .tl-desc { color: #a1a1aa; font-size: 0.9em; }
+    .dot-green { background: #39ff14; box-shadow: 0 0 10px #39ff14; }
+    
+    .tl-date { color: #00f3ff; font-weight: bold; font-size: 0.8rem; }
+    .tl-event { color: #f8fafc; font-weight: bold; margin: 2px 0; font-size: 0.95rem; }
+    .tl-desc { color: #a1a1aa; font-size: 0.85rem; line-height: 1.3; }
+
+    /* Ajuste de tablas para móvil */
+    [data-testid="stDataFrame"] { width: 100%; border: 1px solid #27272a; border-radius: 4px; }
 </style>
 """, unsafe_allow_html=True)
 
 # --- CARGA DE DATOS ---
-df_tx = pd.read_csv("transacciones.csv")
-df_crono = pd.read_csv("cronologia.csv")
+@st.cache_data
+def load_data():
+    df_tx = pd.read_csv("transacciones.csv")
+    df_crono = pd.read_csv("cronologia.csv")
+    return df_tx, df_crono
+
+df_tx, df_crono = load_data()
 
 # --- HEADER TÁCTICO ---
 st.markdown("""
-    <div style='border-bottom: 2px solid #00f3ff; padding-bottom:10px; margin-bottom:20px'>
-        <h2 style='margin:0; color:#00f3ff;'>🛰️ SISTEMA DE MONITOREO - IPP 415/26</h2>
-        <small style='color:#a1a1aa;'>UNIDAD DE INTELIGENCIA OPERATIVA - BASE VILLA SANTA RITA</small>
+    <div style='border-bottom: 2px solid #00f3ff; padding-bottom:10px; margin-bottom:20px; text-align: left;'>
+        <h2 style='margin:0; color:#00f3ff; font-size: clamp(1.2rem, 6vw, 2rem);'>🛰️ MONITOR IPP 415/26</h2>
+        <small style='color:#a1a1aa;'>UNIDAD DE INTELIGENCIA - VILLA SANTA RITA</small>
     </div>
 """, unsafe_allow_html=True)
 
-# --- FILAS SUPERIORES: KPIs ---
-c1, c2, c3, c4 = st.columns(4)
+# --- SECCIÓN DE MÉTRICAS (KPIs) ---
+# En móvil, Streamlit apila estas columnas automáticamente
+c1, c2, c3, c4 = st.columns([1,1,1,1])
 with c1:
-    st.markdown(f"<div class='tactic-card'><div class='metric-label'>Perjuicio Neto</div><div class='metric-value'>$ 23.444.647</div></div>", unsafe_allow_html=True)
+    st.markdown("<div class='tactic-card'><div class='metric-label'>Perjuicio Neto</div><div class='metric-value'>$ 23.4M</div></div>", unsafe_allow_html=True)
 with c2:
-    st.markdown(f"<div class='tactic-card' style='border-left-color:#ffb000'><div class='metric-label'>Estado Dominio</div><div class='metric-value' style='color:#ffb000'>CLIENT HOLD</div></div>", unsafe_allow_html=True)
+    st.markdown("<div class='tactic-card' style='border-left-color:#ffb000'><div class='metric-label'>Estado Dominio</div><div class='metric-value' style='color:#ffb000'>HOLD</div></div>", unsafe_allow_html=True)
 with c3:
-    st.markdown(f"<div class='tactic-card' style='border-left-color:#b026ff'><div class='metric-label'>Causas Conexas</div><div class='metric-value' style='color:#b026ff'>PUENTE HNOS</div></div>", unsafe_allow_html=True)
+    st.markdown("<div class='tactic-card' style='border-left-color:#b026ff'><div class='metric-label'>Causas</div><div class='metric-value' style='color:#b026ff'>PUENTE</div></div>", unsafe_allow_html=True)
 with c4:
-    st.markdown(f"<div class='tactic-card' style='border-left-color:#39ff14'><div class='metric-label'>Recupero Parcial</div><div class='metric-value' style='color:#39ff14'>$ 556.869</div></div>", unsafe_allow_html=True)
+    st.markdown("<div class='tactic-card' style='border-left-color:#39ff14'><div class='metric-label'>Recupero</div><div class='metric-value' style='color:#39ff14'>$ 556K</div></div>", unsafe_allow_html=True)
 
-# --- CUERPO PRINCIPAL ---
-col_main, col_side = st.columns([2, 1])
+# --- CUERPO PRINCIPAL (TABS PARA MEJOR NAVEGACIÓN EN MÓVIL) ---
+# Usar pestañas permite que en el celular no tengas que hacer un scroll infinito
+tab1, tab2, tab3 = st.tabs(["📊 FLUJO BANCARIO", "⏳ TIMELINE", "📂 REPORTES"])
 
-with col_main:
-    st.subheader("📊 Análisis de Nodos y Transacciones")
-    # Filtro rápido
-    busqueda = st.text_input("🔍 Buscar CUIT / Alias / CBU...", "")
+with tab1:
+    st.subheader("Análisis de Transacciones")
+    busqueda = st.text_input("🔍 Buscar CUIT, Alias o Entidad...", placeholder="Ej: Adrex")
     
     if busqueda:
-        resultado = df_tx[df_tx.astype(str).apply(lambda x: x.str.contains(busqueda, case=False)).any(axis=1)]
-        st.dataframe(resultado, use_container_width=True)
+        mask = df_tx.apply(lambda x: x.astype(str).str.contains(busqueda, case=False)).any(axis=1)
+        df_filtrado = df_tx[mask]
     else:
-        st.dataframe(df_tx, use_container_width=True)
+        df_filtrado = df_tx
+        
+    st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
 
-    st.markdown("### 🗺️ Mapa de Billeteras Mulas")
-    # Aquí podrías poner el mapa de red anterior o una tabla resumen
-    st.info("Visualización optimizada para 55 pulgadas. Use Ctrl+R para refrescar datos desde GitHub.")
-
-with col_side:
-    st.subheader("⏳ Línea de Tiempo Operativa")
-    
-    # Generador de Timeline con el estilo de tu HTML
+with tab2:
+    st.subheader("Línea de Tiempo Operativa")
     st.markdown("<div class='tl-container'>", unsafe_allow_html=True)
     for _, row in df_crono.iterrows():
-        # Lógica de colores según fase
-        color_class = "dot-cyan"
+        # Lógica de colores según la fase del HTML original
+        color_class = "dot-cyan" # Fase 1/2
         if "Extorsion" in row['Fase']: color_class = "dot-red"
         if "Judicial" in row['Fase']: color_class = "dot-purple"
+        if "Recupero" in row['Evento'] or "Repatriación" in row['Evento']: color_class = "dot-green"
         
         st.markdown(f"""
             <div class='tl-item'>
@@ -102,9 +112,24 @@ with col_side:
         """, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- BOTONES DE ACCIÓN (Sidebar para no ensuciar el monitor) ---
-with st.sidebar:
-    st.title("OPCIONES")
-    if st.button("📥 Generar Reporte PDF"):
-        st.write("Generando dossier...")
-    st.download_button("📂 Descargar Excel", df_tx.to_csv(), "investigacion_415.csv")
+with tab3:
+    st.subheader("Exportación de Datos")
+    st.info("Desde aquí podés descargar la matriz completa para pericias externas.")
+    
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        st.download_button(
+            label="📄 Descargar Excel (.csv)",
+            data=df_tx.to_csv(index=False),
+            file_name="Matriz_IPP415_26.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+    with col_btn2:
+        # Botón placeholder para el PDF
+        if st.button("📑 Generar Reporte PDF", use_container_width=True):
+            st.warning("Función de PDF en preparación para descarga móvil.")
+
+# --- FOOTER ---
+st.markdown("---")
+st.caption("Acceso Restringido - Sistema de Monitoreo PFA - Actualizado vía GitHub")
