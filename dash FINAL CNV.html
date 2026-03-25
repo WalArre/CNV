@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard IPP 415/26 - V6 RECTIFICADO (LIMPIO)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    /* Paleta Cyber/Neón V6 */
+    --bg-dark: #09090b;
+    --surface-dark: #18181b;
+    --border-color: #27272a;
+    
+    --neon-cyan: #00f3ff;
+    --neon-purple: #b026ff;
+    --neon-green: #39ff14;
+    --neon-red: #ff003c;
+    --neon-amber: #ffb000;
+    
+    --text-main: #f8fafc;
+    --text-muted: #a1a1aa;
+    
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { 
+    font-family: var(--font-sans); 
+    background-color: var(--bg-dark); 
+    color: var(--text-main); 
+    line-height: 1.5; 
+    padding: 20px; 
+    background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, transparent 50%);
+  }
+  .wrap { max-width: 950px; margin: 0 auto; }
+
+  /* Header Styles */
+  .header-container { 
+    background: rgba(24, 24, 27, 0.8); 
+    padding: 20px 24px; 
+    border-radius: 12px; 
+    margin-bottom: 20px; 
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--neon-cyan);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
+  .titulo { font-size: 19px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+  .ids { display: flex; gap: 8px; flex-wrap: wrap; }
+  .id-tag { 
+    font-size: 11px; font-family: var(--font-mono); padding: 4px 10px; border-radius: 4px; 
+    background: rgba(0, 243, 255, 0.05); color: var(--neon-cyan); 
+    border: 1px solid rgba(0, 243, 255, 0.3); 
+  }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+  .tab { 
+    font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 6px; border: 1px solid transparent; 
+    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; 
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tab:hover { color: var(--text-main); border-color: var(--border-color); }
+  .tab.on { 
+    background: rgba(0, 243, 255, 0.1); 
+    color: var(--neon-cyan); 
+    border: 1px solid var(--neon-cyan); 
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2), inset 0 0 5px rgba(0, 243, 255, 0.1); 
+    text-shadow: 0 0 5px var(--neon-cyan);
+  }
+
+  /* Panels & Cards */
+  .panel { display: none; animation: fadeIn 0.4s ease; }
+  .panel.on { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card { 
+    background: var(--surface-dark); 
+    border: 1px solid var(--border-color); 
+    border-radius: 12px; 
+    padding: 20px; 
+    margin-bottom: 16px; 
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+  }
+  
+  .card.border-cyan { border-top: 2px solid var(--neon-cyan); box-shadow: 0 -2px 10px rgba(0, 243, 255, 0.1); }
+  .card.border-red { border-top: 2px solid var(--neon-red); box-shadow: 0 -2px 10px rgba(255, 0, 60, 0.1); }
+  .card.border-purple { border-top: 2px solid var(--neon-purple); box-shadow: 0 -2px 10px rgba(176, 38, 255, 0.1); }
+  .card.border-green { border-top: 2px solid var(--neon-green); box-shadow: 0 -2px 10px rgba(57, 255, 20, 0.1); }
+  .card.border-amber { border-top: 2px solid var(--neon-amber); box-shadow: 0 -2px 10px rgba(255, 176, 0, 0.1); }
+
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+  .card-titulo { font-size: 15px; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px; }
+  .sec { font-size: 11px; font-weight: 600; color: var(--neon-cyan); letter-spacing: 0.05em; text-transform: uppercase; margin: 16px 0 8px; }
+  .divider { height: 1px; background: var(--border-color); margin: 12px 0; }
+
+  /* Rows & Data */
+  .row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+  .row:last-child { border-bottom: none; }
+  .lbl { font-size: 12px; font-weight: 500; color: var(--text-muted); min-width: 140px; flex-shrink: 0; padding-top: 2px; }
+  .val { font-size: 13px; color: var(--text-main); flex: 1; }
+  .val.mono { font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+  
+  .c-red { color: var(--neon-red); text-shadow: 0 0 5px rgba(255, 0, 60, 0.4); }
+  .c-green { color: var(--neon-green); text-shadow: 0 0 5px rgba(57, 255, 20, 0.4); }
+  .c-cyan { color: var(--neon-cyan); text-shadow: 0 0 5px rgba(0, 243, 255, 0.4); }
+  .c-purple { color: var(--neon-purple); text-shadow: 0 0 5px rgba(176, 38, 255, 0.4); }
+  .c-amber { color: var(--neon-amber); text-shadow: 0 0 5px rgba(255, 176, 0, 0.4); }
+
+  /* Grid Financiero */
+  .monto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; margin-bottom: 24px; }
+  .monto-box { background: rgba(24, 24, 27, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; position: relative; }
+  .monto-box.box-cyan { border-left: 3px solid var(--neon-cyan); }
+  .monto-box.box-green { border-left: 3px solid var(--neon-green); }
+  .monto-box.box-total { border-left: 3px solid #fff; box-shadow: 0 0 15px rgba(255,255,255,0.05); }
+  .monto-lbl { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .monto-val { font-size: 18px; font-weight: 700; font-family: var(--font-mono); color: var(--text-main); }
+
+  /* Timeline */
+  .tl-fase { font-size: 12px; font-weight: 700; color: #fff; background: rgba(255,255,255,0.1); padding: 6px 16px; border-radius: 4px; margin: 32px 0 16px 0; display: inline-block; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); }
+  .tl { display: flex; flex-direction: column; margin-top: 8px; }
+  .tl-item { display: flex; gap: 20px; position: relative; padding-bottom: 24px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-left { display: flex; flex-direction: column; align-items: flex-end; width: 110px; flex-shrink: 0; }
+  .tl-fecha { font-size: 13px; font-family: var(--font-mono); font-weight: 600; color: var(--text-main); }
+  .tl-hora { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-top: 2px; }
+  .tl-center { display: flex; flex-direction: column; align-items: center; position: relative; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; border: 2px solid var(--surface-dark); box-shadow: 0 0 8px currentColor; }
+  .dot-cyan { background: var(--neon-cyan); color: var(--neon-cyan); }
+  .dot-red { background: var(--neon-red); color: var(--neon-red); }
+  .dot-green { background: var(--neon-green); color: var(--neon-green); }
+  .dot-amber { background: var(--neon-amber); color: var(--neon-amber); }
+  .dot-purple { background: var(--neon-purple); color: var(--neon-purple); }
+  .tl-line { width: 2px; background: rgba(255,255,255,0.1); position: absolute; top: 18px; bottom: -6px; left: 5px; }
+  .tl-content { flex: 1; background: rgba(24, 24, 27, 0.4); border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 8px; margin-top: -4px; transition: all 0.2s; }
+  .tl-content:hover { background: rgba(24, 24, 27, 0.8); border-color: rgba(255,255,255,0.2); }
+  .tl-evento { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+  .tl-detalle { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+  .tl-op-tag { display: inline-block; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 11px; color: var(--neon-cyan); margin-top: 6px; }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header-container">
+    <div class="titulo">IPP 415/26 — Sumario 55/26 — Urruchúa s/Estafa</div>
+    <div class="ids">
+      <span class="id-tag">DOC: DENUNCIA & AMPLIACIONES</span>
+      <span class="id-tag">ESTADO: COTEJO FÍSICO Y PATRIMONIAL</span>
+      <span class="id-tag">VERSIÓN: DEFINITIVA (V6) - RECTIFICADA</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="tab('denunciante',this)">Denunciante</button>
+    <button class="tab" onclick="tab('financiero',this)">Financiero (Real vs Ficticio)</button>
+    <button class="tab" onclick="tab('nodos',this)">Nodos / Infraestructura</button>
+    <button class="tab" onclick="tab('timeline',this)">Línea de Tiempo</button>
+  </div>
+
+  <div class="panel on" id="p-denunciante">
+    <div class="card border-cyan">
+      <div class="card-head"><div class="card-titulo">Víctima: Edgardo Sebastian Urruchúa</div></div>
+      <div class="row"><span class="lbl">DNI</span><span class="val mono c-cyan">25.688.376</span></div>
+      <div class="row"><span class="lbl">CUIT/CUIL</span><span class="val mono c-cyan">20-25688376-8</span></div>
+      <div class="row"><span class="lbl">Domicilio</span><span class="val">Valentín Alsina 1344, Zárate</span></div>
+      <div class="row"><span class="lbl">Teléfono</span><span class="val mono">3487-473837</span></div>
+      <div class="row"><span class="lbl">Email</span><span class="val mono">surruchua@gmail.com</span></div>
+      <div class="divider"></div>
+      <div class="sec">Datos Bancarios Origen</div>
+      <div class="row"><span class="lbl">CVU Mercado Pago</span><span class="val mono">0000003100074460249046</span></div>
+      <div class="row"><span class="lbl">Cuenta Santander</span><span class="val mono">074-360590/5</span></div>
+      <div class="divider"></div>
+      <div class="sec">Gestiones Documentadas (Importante)</div>
+      <div class="row"><span class="lbl">⚠ Alerta DNI</span><span class="val c-red">La víctima entregó copia de su DNI a los estafadores.</span></div>
+      <div class="row"><span class="lbl">Santander</span><span class="val">Reclamo RE21631917 — Desfavorable.</span></div>
+      <div class="row"><span class="lbl">Mercado Pago</span><span class="val">Repatriación parcial lograda ($556.869).</span></div>
+      <div class="row"><span class="lbl">CNV</span><span class="val">Certificados confirmados falsos.</span></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-financiero">
+    <div class="monto-grid">
+      <div class="monto-box box-cyan"><div class="monto-lbl">Total Real Enviado</div><div class="monto-val c-cyan">$27.432.778</div></div>
+      <div class="monto-box box-green"><div class="monto-lbl">Total Anzuelo / Recuperado</div><div class="monto-val c-green">$5.607.869</div></div>
+      <div class="monto-box box-total"><div class="monto-lbl">Perjuicio Neto Final</div><div class="monto-val">$21.824.909</div></div>
+    </div>
+
+    <div class="card border-cyan">
+      <div class="card-head"><div class="card-titulo">1. Depósitos Iniciales (Dinero REAL transferido)</div></div>
+      <div class="row"><span class="lbl">22/12/2025</span><span class="val mono">$500.000</span></div>
+      <div class="row"><span class="lbl">23/12/2025</span><span class="val mono">$2.000.000</span></div>
+      <div class="row"><span class="lbl">26/12/2025</span><span class="val mono">$2.000.000</span></div>
+      <div class="row"><span class="lbl">29/12/2025</span><span class="val mono">$10.000.000</span></div>
+      <div class="row"><span class="lbl">30/12/2025</span><span class="val mono">$1.000.000</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="lbl">Destinos Inversión</span><span class="val">Todos los depósitos fueron canalizados a <strong>ADREX SA</strong>.</span></div>
+    </div>
+
+    <div class="card border-red">
+      <div class="card-head"><div class="card-titulo">2. Pagos por Extorsión (Dinero REAL transferido)</div></div>
+      <div class="row"><span class="lbl">19/01/2026</span><span class="val mono c-red">$3.511.200</span><span class="val">A: Bringarez SA</span></div>
+      <div class="row"><span class="lbl">20/01/2026</span><span class="val mono c-red">$4.593.588</span><span class="val">A: Finanzas Int. SRL</span></div>
+      <div class="row"><span class="lbl">22/01/2026</span><span class="val mono c-red">$3.827.990</span><span class="val">A: Nicole Zamorano</span></div>
+    </div>
+
+    <div class="card border-purple">
+      <div class="card-head"><div class="card-titulo">3. Cifras Inventadas por la App (Dinero Ficticio / Engaño)</div></div>
+      <div class="row"><span class="lbl">Saldo ficticio en App</span><span class="val mono c-purple">$19.139.953,49</span></div>
+      <div class="row"><span class="lbl">SPO Forzado / Exigido</span><span class="val mono c-purple">$35.112.000 / $25.000.000</span></div>
+      <div class="row"><span class="lbl">Depósito Garantía 15%</span><span class="val mono c-purple">$2.870.992</span></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-nodos">
+    
+    <div class="card border-red">
+      <div class="card-head"><div class="card-titulo">Teléfonos Identificados (WhatsApp)</div></div>
+      <div class="row"><span class="lbl">+54 9 11 7153-3107</span><span class="val">Videollamada inicial</span></div>
+      <div class="row"><span class="lbl">+54 9 11 5463-0718</span><span class="val">Envió certificados falsos</span></div>
+      <div class="row"><span class="lbl">+54 9 11 2674-4813</span><span class="val">"Estafador administrador"</span></div>
+      <div class="row"><span class="lbl">+54 9 11 5762-2073</span><span class="val">"Ken estafa Haman"</span></div>
+      <div class="row"><span class="lbl">+54 9 11 6461-5735</span><span class="val">"Mariana Duarte"</span></div>
+      <div class="row"><span class="lbl">+54 9 11 5348-6296</span><span class="val">"Estafadora 2"</span></div>
+    </div>
+
+    <div class="card border-amber">
+      <div class="card-head"><div class="card-titulo">Cuentas Receptoras / Mulas (Físicas y Jurídicas)</div></div>
+      <div class="row"><span class="lbl">Adrex S.A.</span><span class="val mono">CBU: 0110696720069601786636 | Alias: CONSULUIS123</span></div>
+      <div class="row"><span class="lbl">Bringarez S.A.</span><span class="val mono">CBU: 0110581020058101091557 | Alias: bringarezs.bna</span></div>
+      <div class="row"><span class="lbl">Finanzas Int. SRL</span><span class="val mono">CVU: 0000003100071784867024 | Alias: finazassrl.mp</span></div>
+      <div class="row"><span class="lbl">Milagros Malfetti</span><span class="val mono">CUIT: 27-46278081-3 | CVU: 0000003100071784867024</span></div>
+      <div class="row"><span class="lbl">Nicole G. Zamorano</span><span class="val mono">CVU: 0000003100002777743366 | Alias: NICC15</span></div>
+      <div class="row"><span class="lbl">Wenya Chen (Anzuelo)</span><span class="val mono">CVU: 27941186225</span></div>
+      <div class="row"><span class="lbl">Ana Ovejero (Anzuelo)</span><span class="val mono">CVU: 23436496834</span></div>
+    </div>
+
+    <div class="card border-purple">
+      <div class="card-head"><div class="card-titulo">Infraestructura y Conexidad</div></div>
+      <div class="row"><span class="lbl">Dominio Principal</span><span class="val mono">alliance-bernstein.top <span class="c-green">(CLIENT HOLD)</span></span></div>
+      <div class="row"><span class="lbl">Servidor Chat</span><span class="val mono">chat.btmsgxl.us</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="lbl c-amber">Causa Conexa</span><span class="val">Víctima: Puente Hnos SA | Juzgado Crim. N°29 | Causa CCC 62120/202</span></div>
+    </div>
+
+  </div>
+
+  <div class="panel" id="p-timeline">
+    
+    <div class="tl-fase" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">FASE 1: PREPARACIÓN Y CAPTACIÓN</div>
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">17/09/2025</div></div>
+        <div class="tl-center"><div class="dot dot-cyan"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Emisión de certificados falsos</div>
+          <div class="tl-detalle">Creación del certificado apócrifo de la CNV/FINRA.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">13/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-cyan"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Captación de la víctima</div>
+          <div class="tl-detalle">Ingreso al grupo de WhatsApp cerrado "JI-06".</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">15/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-cyan"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Intento de creación de cuenta</div>
+          <div class="tl-detalle">Fallo en el primer intento de registro en la plataforma.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">16/12/2025</div><div class="tl-hora">20:38 hs</div></div>
+        <div class="tl-center"><div class="dot dot-cyan"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Intento de videollamada</div>
+          <div class="tl-detalle">Llamada no atendida por parte de los estafadores (11-7153-3107).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-fase" style="color: var(--neon-amber); border-color: var(--neon-amber);">FASE 2: DEPÓSITOS Y ENGAÑO OPERATIVO</div>
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">22/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-amber"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">1er Depósito y Entrega de DNI</div>
+          <div class="tl-detalle">Víctima entrega copia de su DNI. Primera transferencia enviada de <strong class="c-amber">$500.000</strong> a cuenta recaudadora (Adrex SA).</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">23/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-amber"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">2do Depósito de Inversión</div>
+          <div class="tl-detalle">Transferencia enviada de <strong class="c-amber">$2.000.000</strong> hacia Adrex SA.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">26/12/2025</div><div class="tl-hora">12:24 hs</div></div>
+        <div class="tl-center"><div class="dot dot-green"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Maniobra Anzuelo N°1</div>
+          <div class="tl-detalle">Víctima recibe <strong class="c-green">$25.000</strong> para generar confianza.<br>
+            <strong>Origen:</strong> Ana Ovejero / Claro-Pay.
+          </div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">26/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-amber"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">3er Depósito de Inversión</div>
+          <div class="tl-detalle">Transferencia enviada de <strong class="c-amber">$2.000.000</strong> a Adrex SA.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">29/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-amber"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">4to Depósito Masivo</div>
+          <div class="tl-detalle">Transferencia enviada de <strong class="c-amber">$10.000.000</strong> a Adrex SA.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">30/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-amber"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">5to Depósito de Inversión</div>
+          <div class="tl-detalle">Transferencia enviada de <strong class="c-amber">$1.000.000</strong> a Adrex SA.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">30/12/2025</div><div class="tl-hora">15:36 hs</div></div>
+        <div class="tl-center"><div class="dot dot-green"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Extracción Exitosa (Maniobra Anzuelo N°2)</div>
+          <div class="tl-detalle">Víctima logra retirar <strong class="c-green">$5.026.000</strong>.<br>
+            <strong>Origen:</strong> Wenya Chen / Pago del Sur.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-fase" style="color: var(--neon-red); border-color: var(--neon-red);">FASE 3: BLOQUEO, MANIPULACIÓN Y EXTORSIONES</div>
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">30/12/2025</div></div>
+        <div class="tl-center"><div class="dot dot-red"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Congelamiento de fondos (SPO Forzado)</div>
+          <div class="tl-detalle">Le asignan un SPO ficticio por $35M para justificar el bloqueo de retiros en la app.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">19/01/2026</div></div>
+        <div class="tl-center"><div class="dot dot-red"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">1er Pago Extorsivo (Multa SPO)</div>
+          <div class="tl-detalle">Transferencia enviada por <strong class="c-red">$3.511.200</strong>.<br>
+            <strong>Destino:</strong> Bringarez SA.
+          </div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">20/01/2026</div><div class="tl-hora">11:21 hs</div></div>
+        <div class="tl-center"><div class="dot dot-purple"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Intento de Retiro App (Rechazado)</div>
+          <div class="tl-detalle">Intenta retirar $2.335.000 ficticios desde la plataforma web.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">20/01/2026</div><div class="tl-hora">17:35 hs</div></div>
+        <div class="tl-center"><div class="dot dot-red"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">2do Pago Extorsivo (Ganancias 30%)</div>
+          <div class="tl-detalle">Transferencia enviada por <strong class="c-red">$4.593.588</strong>.<br>
+            <strong>Destino:</strong> Finanzas Int. SRL.
+          </div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">22/01/2026</div><div class="tl-hora">11:37 hs</div></div>
+        <div class="tl-center"><div class="dot dot-red"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">3er Pago Extorsivo (Impuesto ARCA)</div>
+          <div class="tl-detalle">Transferencia enviada por <strong class="c-red">$3.827.990</strong>.<br>
+            <strong>Destino:</strong> Nicole Geraldine Zamorano.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-fase" style="color: var(--neon-purple); border-color: var(--neon-purple);">FASE 4: ACCIÓN JUDICIAL E INVESTIGACIÓN</div>
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">22/01/2026</div><div class="tl-hora">11:10 hs</div></div>
+        <div class="tl-center"><div class="dot dot-purple"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Inicio de IPP 415/26</div>
+          <div class="tl-detalle">Denuncia en la fiscalía de Zárate.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">27/01/2026</div></div>
+        <div class="tl-center"><div class="dot dot-purple"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Confirmación Causa Conexa</div>
+          <div class="tl-detalle">Puente Hnos confirma que sufren la misma maniobra.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-fecha">26/02/2026</div></div>
+        <div class="tl-center"><div class="dot dot-green"></div></div>
+        <div class="tl-content">
+          <div class="tl-evento">Repatriación Parcial</div>
+          <div class="tl-detalle">Mercado Pago reintegra $556.869.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function tab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('p-' + id).classList.add('on');
+}
+</script>
+
+</body>
+</html>
